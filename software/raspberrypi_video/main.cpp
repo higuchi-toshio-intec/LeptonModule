@@ -1,4 +1,8 @@
-#include "LeptonThread.h"
+#include <unistd.h>
+
+#include "Lepton.h"
+#include "LeptonAction.h"
+#include "LeptonActionPng.h"
 #include "MyLabel.h"
 
 void printUsage(char *cmd) {
@@ -23,6 +27,15 @@ void printUsage(char *cmd) {
                "           [default] automatic scaling range adjustment\n"
                "           e.g. -max 32000\n"
                " -d x    log level (0-255)\n"
+               " -dms  x delay time [milliseconds] (0 - 65535)\n"
+               "           [default] 0\n"
+               " -ims  x interval [milliseconds] (1 - 65535)\n"
+               " -c    x count (0 - 65535)\n"
+               "           0 : endless\n"
+               "           [default] take one shot\n"
+               "Environment variable(s)\n"
+               " LEPTON_PNG_DIR\n"
+               "           make png file(s) in this directory\n"
                "", cmdname, cmdname);
 	return;
 }
@@ -34,6 +47,11 @@ int main( int argc, char **argv )
 	int spiSpeed = 20; // SPI bus speed 20MHz
 	int rangeMin = -1; //
 	int rangeMax = -1; //
+	int delayMs = 0; //
+	int intervalMs = 0; //
+	int limitTakePic = 1; //
+	int count_take_pic = 0;
+	int segment_number0 = 0;
 	int loglevel = 0;
 	for(int i=1; i < argc; i++) {
 		if (strcmp(argv[i], "-h") == 0) {
@@ -85,6 +103,27 @@ int main( int argc, char **argv )
 				i++;
 			}
 		}
+		else if ((strcmp(argv[i], "-dms") == 0) && (i + 1 != argc)) {
+			int val = std::atoi(argv[i + 1]);
+			if ((0 <= val) && (val <= 65535)) {
+				delayMs = val;
+				i++;
+			}
+		}
+		else if ((strcmp(argv[i], "-ims") == 0) && (i + 1 != argc)) {
+			int val = std::atoi(argv[i + 1]);
+			if ((1 <= val) && (val <= 65535)) {
+				intervalMs = val;
+				i++;
+			}
+		}
+		else if ((strcmp(argv[i], "-c") == 0) && (i + 1 != argc)) {
+			int val = std::atoi(argv[i + 1]);
+			if ((0 <= val) && (val <= 65535)) {
+				limitTakePic = val;
+				i++;
+			}
+		}
 	}
 
 	//create a thread to gather SPI data
@@ -98,20 +137,33 @@ int main( int argc, char **argv )
 	if (0 <= rangeMin) myLepton->useRangeMinValue(rangeMin);
 	if (0 <= rangeMax) myLepton->useRangeMaxValue(rangeMax);
 
-	LeptonAction *leptonAction = new LeptonAction();
+	LeptonActionPng *leptonActionPng = new LeptonActionPng(myLepton->getWidth(), myLepton->getHeight());
+	LeptonAction *leptonAction = leptonActionPng;
 
 	//open Lepton port
 	myLepton->open();
 
-	int i = 0;
+	//
+	usleep(delayMs * 1000);
 	while(true) {
 		//read data packets from lepton over SPI
 		int segment_number = myLepton->readFrameData(leptonAction);
-		printf("%d", segment_number);
 
-		i++;
-		if ((i % 24)==0) {
-			printf("\n");
+		if (segment_number0 + 1 == segment_number) {
+			if (segment_number == 4) {
+				leptonActionPng->save();
+				count_take_pic++;
+				if ((limitTakePic != 0) && (limitTakePic <= count_take_pic)) {
+					break;
+				}
+				usleep(intervalMs * 1000);
+			}
+			else {
+				segment_number0 = segment_number;
+			}
+		}
+		else {
+			segment_number0 = 0;
 		}
 	}
 
