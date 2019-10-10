@@ -14,7 +14,7 @@ sdk.commands = make -C $${RPI_LIBS}/$${LEPTONSDK}
 sdkclean.commands = make -C $${RPI_LIBS}/$${LEPTONSDK} clean
 
 DEPENDPATH += .
-INCLUDEPATH += . $${RPI_LIBS}
+INCLUDEPATH += . $${RPI_LIBS} $${RPI_LIBS}/lepton
 
 DESTDIR=.
 OBJECTS_DIR=gen_objs
@@ -24,7 +24,7 @@ HEADERS += *.h
 
 SOURCES += *.cpp
 
-unix:LIBS += -L$${RPI_LIBS}/$${LEPTONSDK}/Debug -lLEPTON_SDK
+unix:LIBS += -L$${RPI_LIBS}/$${LEPTONSDK}/Debug -L$${RPI_LIBS}/lepton -llepton -lLEPTON_SDK
 
 unix:QMAKE_CLEAN += -r $(OBJECTS_DIR) $${MOC_DIR}
 
