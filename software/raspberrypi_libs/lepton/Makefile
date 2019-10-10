@@ -27,3 +27,5 @@ all: $(TARGET)
 
 $(TARTGET): %.o
 
+clean:
+	rm *.o *.a
