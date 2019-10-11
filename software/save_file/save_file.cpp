@@ -176,13 +176,14 @@ int main( int argc, char **argv )
 		int segment_number = myLepton->readFrameData(leptonAction);
 
 		if (segment_number0 + 1 == segment_number) {
-			if (segment_number == 4) {
+			if ((typeLepton == 2) || (segment_number == 4)) {
 				leptonActionFile->save();
 				count_take_pic++;
 				if ((limitTakePic != 0) && (limitTakePic <= count_take_pic)) {
 					break;
 				}
 				usleep(intervalMs * 1000);
+				segment_number0 = 0;
 			}
 			else {
 				segment_number0 = segment_number;
