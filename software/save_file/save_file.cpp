@@ -2,7 +2,10 @@
 
 #include "Lepton.h"
 #include "LeptonAction.h"
-#include "LeptonActionPng.h"
+#include "LeptonActionFile.h"
+#include "LeptonActionFileCsv.h"
+#include "LeptonActionFilePng.h"
+#include "LeptonActionFilePgm.h"
 
 void printUsage(char *cmd) {
         char *cmdname = basename(cmd);
@@ -32,8 +35,12 @@ void printUsage(char *cmd) {
                " -c    x count (0 - 65535)\n"
                "           0 : endless\n"
                "           [default] take one shot\n"
+               " -tff x  select type of file format\n"
+               "           0 : CSV\n"
+               "           1 : PNG [default]\n"
+               "           2 : PGM\n"
                "Environment variable(s)\n"
-               " LEPTON_PNG_DIR\n"
+               " LEPTON_DATA_DIR\n"
                "           make png file(s) in this directory\n"
                "", cmdname, cmdname);
 	return;
@@ -50,6 +57,7 @@ int main( int argc, char **argv )
 	int intervalMs = 0; //
 	int limitTakePic = 1; //
 	int count_take_pic = 0;
+	int typeFileFormat = 1; // 1:PNG  2:PGM
 	int segment_number0 = 0;
 	int loglevel = 0;
 	for(int i=1; i < argc; i++) {
@@ -123,6 +131,13 @@ int main( int argc, char **argv )
 				i++;
 			}
 		}
+		else if ((strcmp(argv[i], "-tff") == 0) && (i + 1 != argc)) {
+			int val = std::atoi(argv[i + 1]);
+			if ((0 <= val) || (val <= 2)) {
+				typeFileFormat = val;
+				i++;
+			}
+		}
 	}
 
 	//create a thread to gather SPI data
@@ -136,8 +151,20 @@ int main( int argc, char **argv )
 	if (0 <= rangeMin) myLepton->useRangeMinValue(rangeMin);
 	if (0 <= rangeMax) myLepton->useRangeMaxValue(rangeMax);
 
-	LeptonActionPng *leptonActionPng = new LeptonActionPng(myLepton->getWidth(), myLepton->getHeight());
-	LeptonAction *leptonAction = leptonActionPng;
+	//
+	LeptonActionFile *leptonActionFile;
+	switch (typeFileFormat) {
+	case 0:
+		leptonActionFile = new LeptonActionFileCsv(myLepton->getWidth(), myLepton->getHeight());
+		break;
+	case 2:
+		leptonActionFile = new LeptonActionFilePgm(myLepton->getWidth(), myLepton->getHeight());
+		break;
+	default:
+		leptonActionFile = new LeptonActionFilePng(myLepton->getWidth(), myLepton->getHeight());
+		break;
+	}
+	LeptonAction *leptonAction = leptonActionFile;
 
 	//open Lepton port
 	myLepton->open();
@@ -150,7 +177,7 @@ int main( int argc, char **argv )
 
 		if (segment_number0 + 1 == segment_number) {
 			if (segment_number == 4) {
-				leptonActionPng->save();
+				leptonActionFile->save();
 				count_take_pic++;
 				if ((limitTakePic != 0) && (limitTakePic <= count_take_pic)) {
 					break;

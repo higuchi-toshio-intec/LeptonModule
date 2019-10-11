@@ -1,34 +1,35 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
+#include <linux/limits.h>
 #include <png.h>
 #include <png++/png.hpp>
 
-#include "LeptonActionPng.h"
+#include "LeptonActionFilePng.h"
 
-LeptonActionPng::LeptonActionPng()
+LeptonActionFilePng::LeptonActionFilePng()
 {
 }
 
-LeptonActionPng::LeptonActionPng(int w, int h)
+LeptonActionFilePng::LeptonActionFilePng(int w, int h)
 {
 	create(w, h);
 }
 
-LeptonActionPng::~LeptonActionPng() {
+LeptonActionFilePng::~LeptonActionFilePng() {
 }
 
-void LeptonActionPng::create(int w, int h)
+void LeptonActionFilePng::create(int w, int h)
 {
 	image_png.resize(w, h);
 }
 
-void LeptonActionPng::save()
+void LeptonActionFilePng::save()
 {
 	char filename[PATH_MAX];
 
 	//
-	const char *dir = getenv("LEPTON_PNG_DIR");
+	const char *dir = getenv("LEPTON_DATA_DIR");
 	if (dir == NULL) {
 		dir = ".";
 	}
@@ -41,12 +42,12 @@ void LeptonActionPng::save()
 	save(filename);
 }
 
-void LeptonActionPng::save(char *filename)
+void LeptonActionFilePng::save(char *filename)
 {
 	image_png.write(filename);
 }
 
-void LeptonActionPng::setPixel(int col, int row, int colorR, int colorG, int colorB)
+void LeptonActionFilePng::setPixel(int col, int row, int colorR, int colorG, int colorB)
 {
 	image_png[row][col] = png::rgb_pixel(colorR, colorG, colorB);
 }

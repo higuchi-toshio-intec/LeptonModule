@@ -1,21 +1,22 @@
-#ifndef TEXTLEPTONACTIONPNG
-#define TEXTLEPTONACTIONPNG
+#ifndef DEF_LeptonActionFilePng_h
+#define DEF_LeptonActionFilePng_h
 
+#include <stdint.h>
 #include <png++/png.hpp>
 
-#include "LeptonAction.h"
+#include "LeptonActionFile.h"
 
-class LeptonActionPng : public LeptonAction
+class LeptonActionFilePng : public LeptonActionFile
 {
 
 public:
-  LeptonActionPng();
-  LeptonActionPng(int, int);
-  ~LeptonActionPng();
+  LeptonActionFilePng();
+  LeptonActionFilePng(int, int);
+  ~LeptonActionFilePng();
 
-  void create(int, int);
-  void save();
-  void save(char *);
+  virtual void create(int, int);
+  virtual void save();
+  virtual void save(char *);
   virtual void setPixel(int, int, int, int, int);
 
 private:
