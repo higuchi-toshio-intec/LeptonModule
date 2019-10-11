@@ -234,6 +234,7 @@ int Lepton::readFrameData(LeptonAction *leptonAction)
 				column = (i % PACKET_SIZE_UINT16) - 2;
 				row = i / PACKET_SIZE_UINT16;
 			}
+			leptonAction->setRawValue(column, row, valueFrameBuffer);
 			leptonAction->setPixel(column, row, colormap[ofs_r], colormap[ofs_g], colormap[ofs_b]);
 		}
 	}
