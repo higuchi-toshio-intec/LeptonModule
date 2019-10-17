@@ -8,7 +8,7 @@
 #include "LeptonActionFilePgm.h"
 
 void printUsage(char *cmd) {
-        char *cmdname = basename(cmd);
+	char *cmdname = basename(cmd);
 	printf("Usage: %s [OPTION]...\n"
                " -h      display this help and exit\n"
                " -cm x   select colormap\n"
@@ -39,6 +39,12 @@ void printUsage(char *cmd) {
                "           0 : CSV\n"
                "           1 : PNG [default]\n"
                "           2 : PGM\n"
+               " -o x    use 'x' as basename for file\n"
+               "           [default] lepton-YYYYMMDD-hhmmss.sss\n"
+               "         extension depends on file format\n"
+               "           CSV : .cvs\n"
+               "           PNG : .png\n"
+               "           PGM : .pmg\n"
                "Environment variable(s)\n"
                " LEPTON_DATA_DIR\n"
                "           make png file(s) in this directory\n"
@@ -60,6 +66,7 @@ int main( int argc, char **argv )
 	int typeFileFormat = 1; // 1:PNG  2:PGM
 	int segment_number0 = 0;
 	int loglevel = 0;
+	char *filename = NULL;
 	for(int i=1; i < argc; i++) {
 		if (strcmp(argv[i], "-h") == 0) {
 			printUsage(argv[0]);
@@ -138,6 +145,13 @@ int main( int argc, char **argv )
 				i++;
 			}
 		}
+		else if ((strcmp(argv[i], "-o") == 0) && (i + 1 != argc)) {
+		char *val = argv[i + 1];
+			if (strcmp(val, "") != 0) {
+				filename = val;
+				i++;
+			}
+		}
 	}
 
 	//create a thread to gather SPI data
@@ -177,7 +191,7 @@ int main( int argc, char **argv )
 
 		if (segment_number0 + 1 == segment_number) {
 			if ((typeLepton == 2) || (segment_number == 4)) {
-				leptonActionFile->save();
+				leptonActionFile->saveBasename(filename);
 				count_take_pic++;
 				if ((limitTakePic != 0) && (limitTakePic <= count_take_pic)) {
 					break;

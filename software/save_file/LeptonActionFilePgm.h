@@ -14,6 +14,9 @@ public:
   ~LeptonActionFilePgm();
 
   virtual void create(int, int);
+  virtual char * getDefaultFilename(char *);
+  virtual char * getFileExt(char *);
+  virtual void saveBasename(char *);
   virtual void save();
   virtual void save(char *);
   virtual void setRawValue(int, int, uint16_t);

@@ -14,6 +14,9 @@ public:
   ~LeptonActionFile();
 
   virtual void create(int, int);
+  virtual char * getDefaultFilename(char *);
+  virtual char * getFileExt(char *);
+  virtual void saveBasename(char *);
   virtual void save();
   virtual void save(char *);
   virtual void setPixel(int, int, int, int, int);

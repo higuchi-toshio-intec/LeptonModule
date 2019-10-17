@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
@@ -24,26 +25,34 @@ void LeptonActionFilePng::create(int w, int h)
 	image_png.resize(w, h);
 }
 
+char * LeptonActionFilePng::getDefaultFilename(char *filename)
+{
+	return LeptonActionFile::getDefaultFilename(filename);
+}
+
+char* LeptonActionFilePng::getFileExt(char *extname)
+{
+	sprintf(extname, ".png");
+	return extname;
+}
+
+void LeptonActionFilePng::saveBasename(char *filebase)
+{
+	LeptonActionFile::saveBasename(filebase);
+}
+
 void LeptonActionFilePng::save()
 {
-	char filename[PATH_MAX];
-
-	//
-	const char *dir = getenv("LEPTON_DATA_DIR");
-	if (dir == NULL) {
-		dir = ".";
-	}
-
-	//
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	struct tm *now = localtime(&tv.tv_sec);
-	sprintf(filename, "%s/lepton-%04d%02d%02d-%02d%02d%02d.%03d.png", dir, now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, (int)(tv.tv_usec/1000));
-	save(filename);
+	LeptonActionFile::save();
 }
 
 void LeptonActionFilePng::save(char *filename)
 {
+	if (filename == NULL) {
+		save();
+		return;
+	}
+
 	image_png.write(filename);
 }
 

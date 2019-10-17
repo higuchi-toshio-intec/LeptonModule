@@ -31,26 +31,34 @@ void LeptonActionFilePgm::create(int w, int h)
 	image_height = h;
 }
 
+char * LeptonActionFilePgm::getDefaultFilename(char *filename)
+{
+	return LeptonActionFile::getDefaultFilename(filename);
+}
+
+char* LeptonActionFilePgm::getFileExt(char *extname)
+{
+	sprintf(extname, ".pgm");
+	return extname;
+}
+
+void LeptonActionFilePgm::saveBasename(char *filebase)
+{
+	LeptonActionFile::saveBasename(filebase);
+}
+
 void LeptonActionFilePgm::save()
 {
-	char filename[PATH_MAX];
-
-	//
-	const char *dir = getenv("LEPTON_DATA_DIR");
-	if (dir == NULL) {
-		dir = ".";
-	}
-
-	//
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	struct tm *now = localtime(&tv.tv_sec);
-	sprintf(filename, "%s/lepton-%04d%02d%02d-%02d%02d%02d.%03d.pgm", dir, now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, (int)(tv.tv_usec/1000));
-	save(filename);
+	LeptonActionFile::save();
 }
 
 void LeptonActionFilePgm::save(char *filename)
 {
+	if (filename == NULL) {
+		save();
+		return;
+	}
+
 	char *magicNumber = "P2"; // PGM
 	uint16_t valMin = UINT16_MAX;
 	uint16_t valMax = 0;
